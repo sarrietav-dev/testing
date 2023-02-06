@@ -1,35 +1,28 @@
+import { TestBed } from '@angular/core/testing';
 import { MasterService } from './master.service';
 import { ValueService } from './value.service';
 
 describe('MasterService', () => {
   let service: MasterService;
+  let valueService: jasmine.SpyObj<ValueService>;
 
-  it('should return the value from the value service', () => {
-    const valueService = new ValueService();
-    service = new MasterService(valueService);
+  beforeEach(() => {
+    const spy = jasmine.createSpyObj('ValueService', ['getValue']);
 
-    expect(service.getValue()).toBe('A value');
-  });
+    TestBed.configureTestingModule({
+      providers: [MasterService, { provide: ValueService, useValue: spy }],
+    });
 
-  it('should return a value using a fake service', () => {
-    const fakeValueService = {
-      getValue: () => 'A fake value',
-    };
+    service = TestBed.inject(MasterService);
+    valueService = TestBed.inject(ValueService) as jasmine.SpyObj<ValueService>;
 
-    service = new MasterService(fakeValueService as ValueService);
-
-    expect(service.getValue()).toBe('A fake value');
+    valueService.getValue.and.returnValue('A value from spy');
   });
 
   it('should call getValue from ValueService', () => {
-    const valueServiceSpy = jasmine.createSpyObj('ValueService', ['getValue']);
 
-    valueServiceSpy.getValue.and.returnValue('A value from spy');
-
-    service = new MasterService(valueServiceSpy);
-
-    expect(valueServiceSpy.getValue()).toBe('A value from spy');
-    expect(valueServiceSpy.getValue).toHaveBeenCalled();
-    expect(valueServiceSpy.getValue).toHaveBeenCalledTimes(1);
+    expect(valueService.getValue()).toBe('A value from spy');
+    expect(valueService.getValue).toHaveBeenCalled();
+    expect(valueService.getValue).toHaveBeenCalledTimes(1);
   });
 });
