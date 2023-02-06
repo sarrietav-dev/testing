@@ -1,3 +1,4 @@
+import { HttpStatusCode } from '@angular/common/http';
 import {
   HttpClientTestingModule,
   HttpTestingController,
@@ -37,7 +38,7 @@ describe('ProductsService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('tests for getAllSimple()', () => {
+  describe('CRUD Operations', () => {
     it('should return an array of products', (done) => {
       const mockData: Product[] = generateManyProducts();
 
@@ -158,6 +159,26 @@ describe('ProductsService', () => {
       const req = httpController.expectOne(url);
       expect(req.request.method).toEqual('DELETE');
       req.flush(true);
+    });
+
+    it('should throw an error when product not found', (done) => {
+      const mockData: Product = generateOneProduct();
+      const errorMessage = '404 message';
+
+      service.getOne(mockData.id).subscribe({
+        error: (err) => {
+          expect(err).toEqual('El producto no existe');
+          done();
+        },
+      });
+
+      const url = `${environment.API_URL}/api/v1/products/${mockData.id}`;
+      const req = httpController.expectOne(url);
+      expect(req.request.method).toEqual('GET');
+      req.flush(errorMessage, {
+        status: HttpStatusCode.NotFound,
+        statusText: errorMessage,
+      });
     });
   });
 });
