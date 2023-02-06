@@ -4,6 +4,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from 'src/environments/environment';
+import { generateManyProducts } from '../models/product.mock';
 import { Product } from '../models/product.model';
 
 import { ProductsService } from './products.service';
@@ -27,25 +28,10 @@ describe('ProductsService', () => {
 
   describe('tests for getAllSimple()', () => {
     it('should return an array of products', (done) => {
-      const mockData: Product[] = [
-        {
-          id: '1',
-          title: 'Title 1',
-          description: 'Description 1',
-          price: 100,
-          category: {
-            id: 1,
-            name: 'Category 1',
-          },
-          images: [
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200/300',
-          ],
-          taxes: 19,
-        },
-      ];
+      const mockData: Product[] = generateManyProducts();
 
       service.getAllSimple().subscribe((products) => {
+        expect(products.length).toBe(10);
         expect(products).toEqual(mockData);
         done();
       });
