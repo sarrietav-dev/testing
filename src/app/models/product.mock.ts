@@ -12,7 +12,6 @@ export const generateOneProduct = (): Product => {
       name: faker.commerce.department(),
     },
     images: [faker.image.imageUrl(), faker.image.imageUrl()],
-    taxes: faker.datatype.number(),
   };
 };
 
