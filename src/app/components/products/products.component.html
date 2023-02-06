@@ -1,1 +1,9 @@
-<p>products works!</p>
+<section class="container">
+  <h1>Products component</h1>
+  <div class="grid">
+    <figure *ngFor="let product of products">
+      <img [src]="product.images[0]" alt="Product" />
+      <figcaption>{{ product.title }} - {{ product.price }}</figcaption>
+    </figure>
+  </div>
+</section>
