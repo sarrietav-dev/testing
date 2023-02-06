@@ -79,5 +79,24 @@ describe('ProductsService', () => {
       req.flush(mockData);
       httpController.verify();
     });
+
+    it('should sent query params with limit 10 and offset 3', (done) => {
+      const mockData: Product[] = generateManyProducts(3);
+
+      const limit = 10;
+      const offset = 3;
+
+      service.getAll(10, 3).subscribe((products) => {
+        expect(products.length).toBe(3);
+        done();
+      });
+
+      const url = `${environment.API_URL}/api/v1/products?limit=${limit}&offset=${offset}`;
+      const req = httpController.expectOne(url);
+      expect(req.request.params.get('limit')).toEqual(`${limit}`);
+      expect(req.request.params.get('offset')).toEqual(`${offset}`);
+      req.flush(mockData);
+      httpController.verify();
+    });
   });
 });
