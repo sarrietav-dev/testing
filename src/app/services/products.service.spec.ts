@@ -1,10 +1,12 @@
-import { HttpStatusCode } from '@angular/common/http';
+import { HttpStatusCode, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from 'src/environments/environment';
+import { TokenInterceptor } from '../interceptors/token.interceptor';
+import { TokenService } from './token.service';
 import {
   generateManyProducts,
   generateOneProduct,
@@ -20,14 +22,19 @@ import { ProductsService } from './products.service';
 describe('ProductsService', () => {
   let service: ProductsService;
   let httpController: HttpTestingController;
+  let tokenService: TokenService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ProductsService],
+      providers: [
+        ProductsService,
+        { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+      ],
       imports: [HttpClientTestingModule],
     });
     service = TestBed.inject(ProductsService);
     httpController = TestBed.inject(HttpTestingController);
+    tokenService = TestBed.inject(TokenService);
   });
 
   afterEach(() => {
@@ -179,6 +186,21 @@ describe('ProductsService', () => {
         status: HttpStatusCode.NotFound,
         statusText: errorMessage,
       });
+    });
+  });
+
+  describe('Request interceptor test', () => {
+    it('should add the token to the request', (done) => {
+      const mockData: Product[] = generateManyProducts();
+      spyOn(tokenService, 'getToken').and.returnValue('token');
+
+      service.getAllSimple().subscribe(() => done());
+
+      const url = `${environment.API_URL}/api/v1/products`;
+      const req = httpController.expectOne(url);
+      expect(req.request.headers.has('Authorization')).toBeTruthy();
+      expect(req.request.headers.get('Authorization')).toEqual('Bearer token');
+      req.flush(mockData);
     });
   });
 });
