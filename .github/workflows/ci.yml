@@ -1,0 +1,16 @@
+name: CI for Angular
+on: push
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node setup
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm run test --no-watch --code-coverage --browsers=ChromeHeadlessCI
+
